@@ -139,9 +139,6 @@ class Chess:
         # with !player winning
         return True
     
-    def indexToNotation(self, index):
-        pass
-
     def pseudo_legal(self, board, player):
         pseudo_legal_moves = []
         for i, t in enumerate(board):
