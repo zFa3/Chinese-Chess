@@ -7,9 +7,9 @@ class Chess:
 
         # the cardinal directions, not mandatory,
         # only to organize the code a little
-        self.U = -9,
-        self.D =  9,
-        self.L = -1,
+        self.U = -11
+        self.D =  11
+        self.L = -1
         self.R =  1
 
         P = -1
@@ -88,7 +88,8 @@ class Chess:
         return test_board
 
     def notationSq(self, square):
-        return abs((ord(square[0])-65)-10) * 11 + int(square[1]) - 1
+        # removed the -1 to compensate for left padding
+        return (abs((ord(square[0])-65) - 9) + 2) * 11 + int(square[1])
     
     def makeLine(self, board, move):
         # this function makes a line
@@ -140,12 +141,31 @@ class Chess:
     def pseudo_legal(self, board, player):
         pseudo_legal_moves = []
         for i, t in enumerate(board):
-            pieces = range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
+            pieces = range(1, 8) if player else range(8, 15)
+            # range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
             if t in pieces and t != -1:
                 if t - (7 * (not player)) == 1:
                     # 1 if the piece is a 車
-                    for i in (self.U, self.D, self.L, self.R):
-                        pass
+                    for j in (self.U, self.D, self.L, self.R):
+                        # create a ray for the piece
+                        for ray_dist in range(1, 10):
+                            # max length between the width and height
+                            piece = board[i + j * ray_dist]
+                            if piece == -1:
+                                # if we have hit an edge, dont continue
+                                break # break from the ray loop
+                            elif piece == 0:
+                                # if it is an empty square, then we can go here or
+                                # choose to go further
+                                pseudo_legal_moves.append((i, i + j * ray_dist))
+                            elif not piece in pieces:
+                                # if it is an enemy piece, then the rook can take it,
+                                # but it cannot continue further, so we break
+                                pseudo_legal_moves.append((i, i + j * ray_dist))
+                            else:
+                            # otherwise, we break, to prevent jumping over pieces
+                                break
+
                 if t - (7 * (not player)) == 2:
                     # 2 馬
                     pass
@@ -169,5 +189,7 @@ class Chess:
 Game = Chess()
 Game.print_board()
 
+print(Game.pseudo_legal(Game.board, Game.Player))
 # print(Game.legal_position(Game.board, Game.Player))
-print(Game.Pieces[Game.board[Game.notationSq(input())]])
+# print(Game.notationSq(input()))
+# print(Game.Pieces[Game.board[Game.notationSq(input())]])
