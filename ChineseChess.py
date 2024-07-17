@@ -14,6 +14,7 @@ class Chess:
 
         P = -1
         self.board = [
+            # Player 1
             P, P, P, P, P, P, P, P, P, P, P,
             P, P, P, P, P, P, P, P, P, P, P,
             P, 1, 2, 6, 5, 7, 5, 6, 2, 1, P,
@@ -27,7 +28,8 @@ class Chess:
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 8, 9, 13, 12, 14, 12, 13, 9, 8, P,
             P, P, P, P, P, P, P, P, P, P, P,
-            P, P, P, P, P, P, P, P, P, P, P,
+            P, P, P, P, P, P, P, P, P, P, P
+            # Player 2
         ]
         # dimensions wid, hgt = 11, 14
 
@@ -201,7 +203,14 @@ class Chess:
                         pseudo_legal_moves.append((i, i + sum(j)))
                 if t - (7 * (not player)) == 7:
                     # 7 將
-                    pass
+                    for m in (self.U, self.D, self.L, self.R):
+                        piece = board[i + m]
+                        if piece == -1 or piece in pieces: continue
+                        # the king has to stay within his palace
+                        # FIXME:
+                        # this doesn't check for kings facing each other
+                        if (i + m in [26, 27, 28, 37, 38, 39, 48, 49, 50] and player) or (i + m in [103, 104, 105, 114, 115, 116, 125, 126, 127] and not player):
+                            pseudo_legal_moves.append((i, i + m))
         return pseudo_legal_moves
 
 Game = Chess()
@@ -210,6 +219,8 @@ Game.print_board()
 print("\n", Game.pseudo_legal(Game.board, Game.Player))
 print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
 
+print(Game.notationSq(input()))
+print(Game.Pieces[Game.board[Game.notationSq(input())]])
+print(Game.Pieces[Game.board[int(input())]])
+
 # print(Game.legal_position(Game.board, Game.Player))
-# print(Game.notationSq(input()))
-# print(Game.Pieces[Game.board[Game.notationSq(input())]])
