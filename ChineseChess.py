@@ -145,7 +145,7 @@ class Chess:
             # range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
             if t in pieces and t != -1:
                 if t - (7 * (not player)) == 1:
-                    # 1 if the piece is a 車
+                    # if the piece is a 車
                     for j in (self.U, self.D, self.L, self.R):
                         # create a ray for the piece
                         for ray_dist in range(1, 10):
@@ -167,8 +167,17 @@ class Chess:
                                 break
 
                 if t - (7 * (not player)) == 2:
-                    # 2 馬
-                    pass
+                    # if the piece is a (knight) 馬
+                    for j in [[self.U, self.U, self.R], [self.U, self.U, self.L], [self.D, self.D, self.R], [self.D, self.D, self.L], [self.L, self.L, self.U], [self.L, self.L, self.D], [self.R, self.R, self.U], self.R, self.R, self.D]:
+                        # all the moves the knight can make
+                        piece = board[i + sum(j)]
+                        if piece == -1 or piece in pieces or board[i + j[1]] != 0:
+                            # if the spot we are checking is out of bounds or is our own piece
+                            # OR, it being blocked by another piece (Special rule in chinese chess)
+                            continue # since this isnt a raying piece, we can cont. instead of breaking
+                        # otherwise we can add it to the list of (pseudo) legal moves
+                        pseudo_legal_moves.append((i, i + sum(j)))
+
                 if t - (7 * (not player)) == 3:
                     # 3 砲
                     pass
