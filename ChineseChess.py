@@ -5,17 +5,31 @@
 class Chess:
     def __init__(self) -> None:
 
+        # the cardinal directions, not mandatory,
+        # only to organize the code a little
+        self.U = -9,
+        self.D =  9,
+        self.L = -1,
+        self.R =  1
+
+        P = -1
         self.board = [
-            1, 2, 6, 5, 7, 5, 6, 2, 1,
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 3, 0, 0, 0, 0, 0, 3, 0,
-            4, 0, 4, 0, 4, 0, 4, 0, 4,
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
-            11, 0, 11, 0, 11, 0, 11, 0, 11,
-            0, 10, 0, 0, 0, 0, 0, 10, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
-            8, 9, 13, 12, 14, 12, 13, 9, 8]
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, 1, 2, 6, 5, 7, 5, 6, 2, 1, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 0, 3, 0, 0, 0, 0, 0, 3, 0, P,
+            P, 4, 0, 4, 0, 4, 0, 4, 0, 4, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 11, 0, 11, 0, 11, 0, 11, 0, 11, P,
+            P, 0, 10, 0, 0, 0, 0, 0, 10, 0, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 8, 9, 13, 12, 14, 12, 13, 9, 8, P,
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, P, P, P, P, P, P, P, P, P, P,
+        ]
+        # dimensions wid, hgt = 11, 14
 
         # Pieces
         # 車, 馬, 砲, 卒, 士, 象, 將 --- Player 1
@@ -42,11 +56,24 @@ class Chess:
         self.Player = True # Player 1 to move
 
     def print_board(self):
-        for i in range(10):
-            for j in range(9):
-                ending = "|" if j != 8 else "| " + chr(abs(i - 9) + 65)
-                print(self.Pieces[self.board[i * 9 + j]], end = ending)
-            print()
+        for i in range(14):
+            for j in range(11):
+                if self.board[i * 11 + j] != -1:
+                    ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
+                    print(self.Pieces[self.board[i * 11 + j]], end = ending)
+        for i in range(9):
+            print(i + 1, end = "  ")
+    
+    def print_board_highlight(self, index):
+        for i in range(14):
+            for j in range(11):
+                if self.board[i * 11 + j] != -1:
+                    if self.board[i * 11 + j] == index:
+                        ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
+                        print("X", end = ending)
+                    else:
+                        ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
+                        print(self.Pieces[self.board[i * 11 + j]], end = ending)
         for i in range(9):
             print(i + 1, end = "  ")
 
@@ -61,24 +88,24 @@ class Chess:
         return test_board
 
     def notationSq(self, square):
-        return abs((ord(square[0])-65)-9) * 9 + int(square[1]) - 1
+        return abs((ord(square[0])-65)-10) * 11 + int(square[1]) - 1
     
     def makeLine(self, board, move):
         # this function makes a line
         # between the (var) move endpoints
         # useful for detecting Cannon moves
-        if self.notationSq(move[:2]) % 9 == self.notationSq(move[2:]) % 9:
+        if self.notationSq(move[:2]) % 11 == self.notationSq(move[2:]) % 11:
             # if this is true, then it is a vertical move
-            return [item for index, item in enumerate(board) if index % 9 == self.notationSq(move[2:]) % 9]
+            return [item for index, item in enumerate(board) if index % 11 == self.notationSq(move[2:]) % 11]
         else:
             # otherwise, it is a horizontal move
             return [item for index, item in enumerate(board) if index > min(self.notationSq(move[:2]), self.notationSq(move[2:])) and index < max(self.notationSq(move[:2]), self.notationSq(move[2:]))]
     
     def MakeLine(self, board, move1, move2):
         # same function as above, takes in indexes instead
-        if move1 % 9 == move2 % 9:
+        if move1 % 11 == move2 % 11:
             # if this is true, then it is a vertical move
-            return [item for index, item in enumerate(board) if index % 9 == move2 % 9]
+            return [item for index, item in enumerate(board) if index % 11 == move2 % 11]
         else:
             # otherwise, it is a horizontal move
             return [item for index, item in enumerate(board) if index > min(move1, move2) and index < max(move1, move2)]
@@ -88,7 +115,7 @@ class Chess:
             # if there are not two kings on the board
             # then it is an illegal position
             return False
-        if board.index(7) % 9 == board.index(14) % 9 and all([item == 0 for item in self.MakeLine(board, board.index(7), board.index(14))]):
+        if board.index(7) % 11 == board.index(14) % 11 and all([item == 0 for item in self.MakeLine(board, board.index(7), board.index(14))]):
             # special rule in chinese chess
             # the kings cannot face each other
             # with no pieces in between
@@ -107,11 +134,40 @@ class Chess:
         # with !player winning
         return True
     
-    def pseudo_legal(self, board, player):
+    def indexToNotation(self, index):
         pass
+
+    def pseudo_legal(self, board, player):
+        pseudo_legal_moves = []
+        for i, t in enumerate(board):
+            pieces = range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
+            if t in pieces and t != -1:
+                if t - (7 * (not player)) == 1:
+                    # 1 if the piece is a 車
+                    for i in (self.U, self.D, self.L, self.R):
+                        pass
+                if t - (7 * (not player)) == 2:
+                    # 2 馬
+                    pass
+                if t - (7 * (not player)) == 3:
+                    # 3 砲
+                    pass
+                if t - (7 * (not player)) == 4:
+                    # 4 卒
+                    pass
+                if t - (7 * (not player)) == 5:
+                    # 5 士
+                    pass
+                if t - (7 * (not player)) == 6:
+                    # 6 象
+                    pass
+                if t - (7 * (not player)) == 7:
+                    # 7 將
+                    pass
+        return pseudo_legal_moves
 
 Game = Chess()
 Game.print_board()
 
 # print(Game.legal_position(Game.board, Game.Player))
-# print(Game.Pieces[Game.board[Game.notationSq(input())]])
+print(Game.Pieces[Game.board[Game.notationSq(input())]])
