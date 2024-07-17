@@ -51,14 +51,29 @@ class Chess:
             print(i + 1, end = "  ")
 
     def play_move(self, move, board):
+        # this function doesn't test whether
+        # the move is legal or not
         # play a move, on a test board
         # make shallow copy of board
         test_board = board[:]
-        pass
+        a, b = test_board[self.notationSq(move[:2])], test_board[self.notationSq(move[2:])]
+        test_board[self.notationSq(move[2:])], test_board[self.notationSq(move[:2])] = a, b
+        return test_board
 
     def notationSq(self, square):
-        return abs((ord(square[0])-65)-10)
+        return abs((ord(square[0])-65)-9) * 9 + int(square[1]) - 1
     
+    def makeLine(self, board, move):
+        # this function makes a line
+        # between the (var) move endpoints
+        # useful for detecting Cannon moves
+        if self.notationSq(move[:2]) % 9 == self.notationSq(move[2:]) % 9:
+            # if this is true, then it is a vertical move
+            return [item for index, item in enumerate(board) if index % 9 == self.notationSq(move[2:]) % 9]
+        else:
+            # otherwise, it is a horizontal move
+            return [item for index, item in enumerate(board) if index > min(self.notationSq(move[:2]), self.notationSq(move[2:])) and index < max(self.notationSq(move[:2]), self.notationSq(move[2:]))]
 
 Game = Chess()
 Game.print_board()
+print(Game.Pieces[Game.board[Game.notationSq(input())]])
