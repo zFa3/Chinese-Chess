@@ -61,6 +61,8 @@ class Chess:
                 if self.board[i * 11 + j] != -1:
                     ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
                     print(self.Pieces[self.board[i * 11 + j]], end = ending)
+            if i == 6:
+                print("--------------------------")
         for i in range(9):
             print(i + 1, end = "  ")
     
@@ -168,7 +170,7 @@ class Chess:
 
                 if t - (7 * (not player)) == 2:
                     # if the piece is a (knight) 馬
-                    for j in [[self.U, self.U, self.R], [self.U, self.U, self.L], [self.D, self.D, self.R], [self.D, self.D, self.L], [self.L, self.L, self.U], [self.L, self.L, self.D], [self.R, self.R, self.U], self.R, self.R, self.D]:
+                    for j in [[self.U, self.U, self.R], [self.U, self.U, self.L], [self.D, self.D, self.R], [self.D, self.D, self.L], [self.L, self.L, self.U], [self.L, self.L, self.D], [self.R, self.R, self.U], [self.R, self.R, self.D]]:
                         # all the moves the knight can make
                         piece = board[i + sum(j)]
                         if piece == -1 or piece in pieces or board[i + j[1]] != 0:
@@ -189,7 +191,14 @@ class Chess:
                     pass
                 if t - (7 * (not player)) == 6:
                     # 6 象
-                    pass
+                    for j in [[self.U, self.R, self.U, self.R], [self.U, self.L, self.U, self.L], [self.D, self.R, self.D, self.R], [self.D, self.L, self.D, self.L]]:
+                        # all the moves the knight can make
+                        piece = board[i + sum(j)]
+                        if piece == -1 or piece in pieces or board[i + sum(j[:2])] != 0 or ((i + sum(j)) < 70 and not player) or ((i + sum(j)) > 60 and player):
+                            # Very similar to the knight, however it can'r cross the river
+                            continue # since this isnt a raying piece, we can cont. instead of breaking
+                        # otherwise we can add it to the list of (pseudo) legal moves
+                        pseudo_legal_moves.append((i, i + sum(j)))
                 if t - (7 * (not player)) == 7:
                     # 7 將
                     pass
@@ -198,7 +207,9 @@ class Chess:
 Game = Chess()
 Game.print_board()
 
-print(Game.pseudo_legal(Game.board, Game.Player))
+print("\n", Game.pseudo_legal(Game.board, Game.Player))
+print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
+
 # print(Game.legal_position(Game.board, Game.Player))
 # print(Game.notationSq(input()))
 # print(Game.Pieces[Game.board[Game.notationSq(input())]])
