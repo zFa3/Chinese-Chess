@@ -73,7 +73,45 @@ class Chess:
         else:
             # otherwise, it is a horizontal move
             return [item for index, item in enumerate(board) if index > min(self.notationSq(move[:2]), self.notationSq(move[2:])) and index < max(self.notationSq(move[:2]), self.notationSq(move[2:]))]
+    
+    def MakeLine(self, board, move1, move2):
+        # same function as above, takes in indexes instead
+        if move1 % 9 == move2 % 9:
+            # if this is true, then it is a vertical move
+            return [item for index, item in enumerate(board) if index % 9 == move2 % 9]
+        else:
+            # otherwise, it is a horizontal move
+            return [item for index, item in enumerate(board) if index > min(move1, move2) and index < max(move1, move2)]
+
+    def legal_position(self, board: list, player):
+        if board.count(7) + board.count(14) != 2:
+            # if there are not two kings on the board
+            # then it is an illegal position
+            return False
+        if board.index(7) % 9 == board.index(14) % 9 and all([item == 0 for item in self.MakeLine(board, board.index(7), board.index(14))]):
+            # special rule in chinese chess
+            # the kings cannot face each other
+            # with no pieces in between
+            return False
+        if board.index(7) in self.pseudo_legal(board, player) and not player:
+            return False
+            # if player 1's king is in
+            # danger while it is player 2's turn then
+            # it is an illegal position, since it would
+            # be game over
+        if board.index(14) in self.pseudo_legal(board, player) and player:
+            # Same with the other side
+            return False
+        # if there are no legal positions,
+        # then the game is over,
+        # with !player winning
+        return True
+    
+    def pseudo_legal(self, board, player):
+        pass
 
 Game = Chess()
 Game.print_board()
-print(Game.Pieces[Game.board[Game.notationSq(input())]])
+
+# print(Game.legal_position(Game.board, Game.Player))
+# print(Game.Pieces[Game.board[Game.notationSq(input())]])
