@@ -4,15 +4,18 @@
 
 class Chess:
     def __init__(self) -> None:
-
-        # the cardinal directions, not mandatory,
-        # only to organize the code a little
+        # the directions
         self.U = -11
         self.D =  11
         self.L = -1
         self.R =  1
-
+        # padding
         P = -1
+        # the board, with a 2 layer padding
+        # on each side (left and right wrap around)
+        # to prevent pieces that can jump
+        # like the knight/elephant from
+        # moving out of bounds
         self.board = [
             # Player 1
             P, P, P, P, P, P, P, P, P, P, P,
@@ -38,7 +41,7 @@ class Chess:
             P, 1, 2, 6, 5, 7, 5, 6, 2, 1, P,
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 0, 3, 0, 0, 0, 0, 0, 3, 0, P,
-            P, 4, 0, 4, 0, 4, 0, 4, 0, 4, P,
+            P, 4, 11, 4, 0, 4, 0, 4, 0, 4, P,
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 11, 0, 11, 0, 11, 0, 11, 0, 11, P,
@@ -201,22 +204,38 @@ class Chess:
                         pseudo_legal_moves.append((i, i + sum(j)))
 
                 if t - (7 * (not player)) == 3:
-                    # 3 砲
-                    pass
+                    # if the piece is a cannon 砲
+                    for j in (self.U, self.D, self.L, self.R):
+                        jumped = False
+                        # create a ray for the piece
+                        for ray_dist in range(1, 10):
+                            # Furthest the piece can go before leaving the board
+                            piece = board[i + j * ray_dist]
+                            if piece == -1: break # similar code to the 車 (chess rook equivalent)
+                            if not jumped:
+                                if piece == 0:
+                                    pseudo_legal_moves.append((i, i + j * ray_dist))
+                                elif piece:
+                                    jumped = True
+                            elif piece:
+                                pseudo_legal_moves.append((i, i + j * ray_dist)); break
+                    
                 if t - (7 * (not player)) == 4:
                     # 4 卒
                     if (player and i > 77) or (not player and i < 67):
                         # if the pawn has crossed the river
                         # then it can now capture to the side
-                        pass
+                        for m in [self.L, self.R, (self.D if player else self.U)]:
+                            if (not board[i + m] in pieces) and board[i + m] != -1:
+                                pseudo_legal_moves.append((i, i + m))
                     elif board[i + (self.D if player else self.U)] not in pieces and board[i + (self.D if player else self.U)] != -1:
                         pseudo_legal_moves.append((i, i + (self.D if player else self.U)))
-                        # then it can only capture the square infront of it
+                        # then it can only capture the square in front of it
                         
                 if t - (7 * (not player)) == 5:
                     # 5 士
                     for m in [self.U + self.R, self.U + self.L, self.D + self.R, self.D + self.L]:
-                        if not board[i + m] in pieces and board[i + m] != -1 and ((i + m in [26, 27, 28, 37, 38, 39, 48, 49, 50] and player) or (i + m in [103, 104, 105, 114, 115, 116, 125, 126, 127] and not player)):
+                        if (not board[i + m] in pieces) and board[i + m] != -1 and ((i + m in [26, 27, 28, 37, 38, 39, 48, 49, 50] and player) or (i + m in [103, 104, 105, 114, 115, 116, 125, 126, 127] and not player)):
                             pseudo_legal_moves.append((i, i + m))
                 if t - (7 * (not player)) == 6:
                     # 6 象
@@ -239,14 +258,16 @@ class Chess:
         return pseudo_legal_moves
 
     def indexNotation(self, index):
+        # FIXME - Broken
+        # notation flipped when crossed river
         index = abs(index - 14 * 11) - 23
         row, col = index // 11, index % 11
-        return str(chr(row + 65) + str(col))
+        return str(chr(row + 65) + str((col)))
 
 def main():
     Game = Chess()
     Game.print_board()
-    # Game.Player = not Game.Player
+    Game.Player = not Game.Player
 
     print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.pseudo_legal(Game.board, Game.Player))))
     print(Game.pseudo_legal(Game.board, Game.Player))
