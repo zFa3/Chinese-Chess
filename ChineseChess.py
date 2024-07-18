@@ -5,13 +5,32 @@
 class Chess:
     def __init__(self) -> None:
 
-        # the 4 directions
+        # the cardinal directions, not mandatory,
+        # only to organize the code a little
         self.U = -11
         self.D =  11
         self.L = -1
         self.R =  1
 
         P = -1
+        self.board = [
+            # Player 1
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, 1, 2, 6, 5, 7, 5, 6, 2, 1, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 0, 3, 0, 0, 0, 0, 0, 3, 0, P,
+            P, 4, 0, 4, 0, 4, 0, 4, 0, 4, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 11, 0, 11, 0, 11, 0, 11, 0, 11, P,
+            P, 0, 10, 0, 0, 0, 0, 0, 10, 0, P,
+            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
+            P, 8, 9, 13, 12, 14, 12, 13, 9, 8, P,
+            P, P, P, P, P, P, P, P, P, P, P,
+            P, P, P, P, P, P, P, P, P, P, P
+            # Player 2
+        ]
         self.board = [
             # Player 1
             P, P, P, P, P, P, P, P, P, P, P,
@@ -143,6 +162,9 @@ class Chess:
         for i, t in enumerate(board):
             # pieces = range(1, 8) if player else range(8, 15)
             pieces = range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
+            # we could actually do a out of bounds check more efficiently by
+            # adding the padding block (-1) as a friendly piece for both sides,
+            # which essentially does the same thing as what it currently does
             if t in pieces and t != -1:
                 if t - (7 * (not player)) == 1:
                     # if the piece is a 車
@@ -183,7 +205,14 @@ class Chess:
                     pass
                 if t - (7 * (not player)) == 4:
                     # 4 卒
-                    pass
+                    if (player and i > 77) or (not player and i < 67):
+                        # if the pawn has crossed the river
+                        # then it can now capture to the side
+                        pass
+                    elif board[i + (self.D if player else self.U)] not in pieces and board[i + (self.D if player else self.U)] != -1:
+                        pseudo_legal_moves.append((i, i + (self.D if player else self.U)))
+                        # then it can only capture the square infront of it
+                        
                 if t - (7 * (not player)) == 5:
                     # 5 士
                     for m in [self.U + self.R, self.U + self.L, self.D + self.R, self.D + self.L]:
@@ -214,16 +243,21 @@ class Chess:
         row, col = index // 11, index % 11
         return str(chr(row + 65) + str(col))
 
-Game = Chess()
-Game.print_board()
-Game.Player = not Game.Player
+def main():
+    Game = Chess()
+    Game.print_board()
+    # Game.Player = not Game.Player
 
-print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.pseudo_legal(Game.board, Game.Player))))
-print(Game.pseudo_legal(Game.board, Game.Player))
+    print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.pseudo_legal(Game.board, Game.Player))))
+    print(Game.pseudo_legal(Game.board, Game.Player))
 
-print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
-print(Game.legal_position(Game.board, Game.Player))
+    print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
+    print(Game.legal_position(Game.board, Game.Player))
 
-# print(Game.notationSq(input()))
-# print(Game.Pieces[Game.board[Game.notationSq(input())]])
-# print(Game.Pieces[Game.board[int(input())]])
+    print(Game.notationSq(input()))
+    # print(Game.Pieces[Game.board[Game.notationSq(input())]])
+    # print(Game.Pieces[Game.board[int(input())]])
+
+
+if __name__ == "__main__":
+    main()
