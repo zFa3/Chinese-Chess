@@ -61,7 +61,7 @@ class Chess:
         self.Player = True # Player 1 to move
 
     def print_board(self):
-        print("\033c")
+       # print("\033c")
         for i in range(14):
             for j in range(11):
                 if self.board[i * 11 + j] != -1:
@@ -122,7 +122,7 @@ class Chess:
         legal_moves = []
         for i in self.pseudo_legal(board, player):
             test_board = self.Play_Move(i, board)
-            if self.legal_position(test_board, not player):
+            if self.legal_position(test_board, player):
                 legal_moves.append(i)
         return legal_moves
 
@@ -137,15 +137,15 @@ class Chess:
             # with no pieces in between
             return False
         # print(board.index(7), list(map(lambda x:x[1], self.pseudo_legal(board, player))), not player)
-        if board.index(7) in map(lambda x:x[1], self.pseudo_legal(board, player)) and not player:
+        if board.index(7) in list(map(lambda x:x[1], self.pseudo_legal(board, not player))):
             return False
             # if player 1's king is in
             # danger while it is player 2's turn then
             # it is an illegal position, since it would
             # be game over
-        if board.index(14) in map(lambda x:x[1], self.pseudo_legal(board, player)) and player:
-            # Same with the other side
+        if board.index(14) in list(map(lambda x:x[1], self.pseudo_legal(board, not player))):
             return False
+            # Same with the other side
         # if there are no legal positions,
         # then the game is over,
         # with !player winning
@@ -268,7 +268,7 @@ def main():
             if len(Game.legal_moves(Game.board, Game.Player)) == 0: break
         else:
             print("Invalid Move")
-    print(f"PLAYER {(not Game.Player) + 1}")
+    print(f"PLAYER {(not Game.Player) + 1} WON")
 
     # print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.legal_moves(Game.board, Game.Player))))
     # print(Game.legal_moves(Game.board, Game.Player))
