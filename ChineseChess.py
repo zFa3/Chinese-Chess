@@ -1,5 +1,5 @@
 #!usr/bin/env python 3
-
+# zFa3 - Chinese Chess
 # 中国象棋
 
 class Chess:
@@ -24,24 +24,6 @@ class Chess:
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 0, 3, 0, 0, 0, 0, 0, 3, 0, P,
             P, 4, 0, 4, 0, 4, 0, 4, 0, 4, P,
-            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
-            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
-            P, 11, 0, 11, 0, 11, 0, 11, 0, 11, P,
-            P, 0, 10, 0, 0, 0, 0, 0, 10, 0, P,
-            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
-            P, 8, 9, 13, 12, 14, 12, 13, 9, 8, P,
-            P, P, P, P, P, P, P, P, P, P, P,
-            P, P, P, P, P, P, P, P, P, P, P
-            # Player 2
-        ]
-        self.board = [
-            # Player 1
-            P, P, P, P, P, P, P, P, P, P, P,
-            P, P, P, P, P, P, P, P, P, P, P,
-            P, 1, 2, 6, 5, 7, 5, 6, 2, 1, P,
-            P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
-            P, 0, 3, 0, 0, 0, 0, 0, 3, 0, P,
-            P, 4, 11, 4, 0, 4, 0, 4, 0, 4, P,
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 0, 0, 0, 0, 0, 0, 0, 0, 0, P,
             P, 11, 0, 11, 0, 11, 0, 11, 0, 11, P,
@@ -79,6 +61,7 @@ class Chess:
         self.Player = True # Player 1 to move
 
     def print_board(self):
+        print("\033c")
         for i in range(14):
             for j in range(11):
                 if self.board[i * 11 + j] != -1:
@@ -88,19 +71,7 @@ class Chess:
                 print("--------------------------")
         for i in range(9):
             print(i + 1, end = "  ")
-    
-    def print_board_highlight(self, index):
-        for i in range(14):
-            for j in range(11):
-                if self.board[i * 11 + j] != -1:
-                    if self.board[i * 11 + j] == index:
-                        ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
-                        print("X", end = ending)
-                    else:
-                        ending = "|" if j != 9 else "| " + chr(abs(i - 14) + 62) + "\n"
-                        print(self.Pieces[self.board[i * 11 + j]], end = ending)
-        for i in range(9):
-            print(i + 1, end = "  ")
+        print("\n")
 
     def play_move(self, move, board):
         # this function doesn't test whether
@@ -108,8 +79,19 @@ class Chess:
         # play a move, on a test board
         # make shallow copy of board
         test_board = board[:]
-        a, b = test_board[self.notationSq(move[:2])], test_board[self.notationSq(move[2:])]
-        test_board[self.notationSq(move[2:])], test_board[self.notationSq(move[:2])] = a, b
+        # a, b = test_board[self.notationSq(move[:2])], test_board[self.notationSq(move[2:])]
+        # test_board[self.notationSq(move[2:])], test_board[self.notationSq(move[:2])] = a, b
+        test_board[self.notationSq(move[2:])] = test_board[self.notationSq(move[:2])]
+        test_board[self.notationSq(move[:2])] = 0
+        return test_board
+    
+    def Play_Move(self, move, board):
+        # same as above but takes in indexes instead
+        test_board = board[:]
+        # a, b = test_board[move[0]], test_board[move[1]]
+        # test_board[move[1]], test_board[move[0]] = a, b
+        test_board[move[1]] = test_board[move[0]]
+        test_board[move[0]] == 0
         return test_board
 
     def notationSq(self, square):
@@ -136,6 +118,14 @@ class Chess:
             # otherwise, it is a horizontal move
             return [item for index, item in enumerate(board) if index > min(move1, move2) and index < max(move1, move2) and item != -1]
 
+    def legal_moves(self, board, player):
+        legal_moves = []
+        for i in self.pseudo_legal(board, player):
+            test_board = self.Play_Move(i, board)
+            if self.legal_position(test_board, not player):
+                legal_moves.append(i)
+        return legal_moves
+
     def legal_position(self, board: list, player):
         if board.count(7) + board.count(14) != 2:
             # if there are not two kings on the board
@@ -146,13 +136,14 @@ class Chess:
             # the kings cannot face each other
             # with no pieces in between
             return False
-        if board.index(7) in self.pseudo_legal(board, player) and not player:
+        # print(board.index(7), list(map(lambda x:x[1], self.pseudo_legal(board, player))), not player)
+        if board.index(7) in map(lambda x:x[1], self.pseudo_legal(board, player)) and not player:
             return False
             # if player 1's king is in
             # danger while it is player 2's turn then
             # it is an illegal position, since it would
             # be game over
-        if board.index(14) in self.pseudo_legal(board, player) and player:
+        if board.index(14) in map(lambda x:x[1], self.pseudo_legal(board, player)) and player:
             # Same with the other side
             return False
         # if there are no legal positions,
@@ -258,27 +249,33 @@ class Chess:
         return pseudo_legal_moves
 
     def indexNotation(self, index):
-        # FIXME - Broken
-        # notation flipped when crossed river
-        index = abs(index - 14 * 11) - 23
-        row, col = index // 11, index % 11
-        return str(chr(row + 65) + str((col)))
+        # very terrible code, brute forcing notation coversion
+        # still fast though. Much better than incorrect notations
+        for i in range(10):
+            for j in range(1, 10):
+                if self.notationSq(chr(i + 65) + str(j)) == index:
+                    return chr(i + 65) + str(j)
 
 def main():
     Game = Chess()
     Game.print_board()
-    Game.Player = not Game.Player
+    while True:
+        move = input(f"{"PLAYER 1 -" if Game.Player else "PLAYER 2 -"} Move:").upper()
+        if move in list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]), Game.legal_moves(Game.board, Game.Player))):
+            Game.board = Game.play_move(move, Game.board)
+            Game.print_board()
+            Game.Player = not Game.Player
+            if len(Game.legal_moves(Game.board, Game.Player)) == 0: break
+        else:
+            print("Invalid Move")
+    print(f"PLAYER {(not Game.Player) + 1}")
 
-    print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.pseudo_legal(Game.board, Game.Player))))
-    print(Game.pseudo_legal(Game.board, Game.Player))
+    # print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.legal_moves(Game.board, Game.Player))))
+    # print(Game.legal_moves(Game.board, Game.Player))
 
-    print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
-    print(Game.legal_position(Game.board, Game.Player))
-
-    print(Game.notationSq(input()))
-    # print(Game.Pieces[Game.board[Game.notationSq(input())]])
-    # print(Game.Pieces[Game.board[int(input())]])
-
+    # print("Moves:", len(Game.legal_moves(Game.board, Game.Player)))
+    # print(Game.legal_position(Game.board, Game.Player))
+    # print(Game.notationSq(input()))
 
 if __name__ == "__main__":
     main()
