@@ -5,8 +5,7 @@
 class Chess:
     def __init__(self) -> None:
 
-        # the cardinal directions, not mandatory,
-        # only to organize the code a little
+        # the 4 directions
         self.U = -11
         self.D =  11
         self.L = -1
@@ -110,10 +109,10 @@ class Chess:
         # same function as above, takes in indexes instead
         if move1 % 11 == move2 % 11:
             # if this is true, then it is a vertical move
-            return [item for index, item in enumerate(board) if index % 11 == move2 % 11]
+            return [item for index, item in enumerate(board) if index % 11 == move2 % 11 and item != -1 and index > min(move1, move2) and index < max(move1, move2)]
         else:
             # otherwise, it is a horizontal move
-            return [item for index, item in enumerate(board) if index > min(move1, move2) and index < max(move1, move2)]
+            return [item for index, item in enumerate(board) if index > min(move1, move2) and index < max(move1, move2) and item != -1]
 
     def legal_position(self, board: list, player):
         if board.count(7) + board.count(14) != 2:
@@ -142,8 +141,8 @@ class Chess:
     def pseudo_legal(self, board, player):
         pseudo_legal_moves = []
         for i, t in enumerate(board):
-            pieces = range(1, 8) if player else range(8, 15)
-            # range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
+            # pieces = range(1, 8) if player else range(8, 15)
+            pieces = range(((not player)) * 7 + 1, ((not player) + 1) * 7 + 1)
             if t in pieces and t != -1:
                 if t - (7 * (not player)) == 1:
                     # if the piece is a 車
@@ -187,14 +186,16 @@ class Chess:
                     pass
                 if t - (7 * (not player)) == 5:
                     # 5 士
-                    pass
+                    for m in [self.U + self.R, self.U + self.L, self.D + self.R, self.D + self.L]:
+                        if not board[i + m] in pieces and board[i + m] != -1 and ((i + m in [26, 27, 28, 37, 38, 39, 48, 49, 50] and player) or (i + m in [103, 104, 105, 114, 115, 116, 125, 126, 127] and not player)):
+                            pseudo_legal_moves.append((i, i + m))
                 if t - (7 * (not player)) == 6:
                     # 6 象
                     for j in [[self.U, self.R, self.U, self.R], [self.U, self.L, self.U, self.L], [self.D, self.R, self.D, self.R], [self.D, self.L, self.D, self.L]]:
                         # all the moves the knight can make
                         piece = board[i + sum(j)]
                         if piece == -1 or piece in pieces or board[i + sum(j[:2])] != 0 or ((i + sum(j)) < 70 and not player) or ((i + sum(j)) > 60 and player):
-                            # Very similar to the knight, however it can'r cross the river
+                            # Very similar to the knight, however it can't cross the river
                             continue # since this isnt a raying piece, we can cont. instead of breaking
                         # otherwise we can add it to the list of (pseudo) legal moves
                         pseudo_legal_moves.append((i, i + sum(j)))
@@ -204,20 +205,25 @@ class Chess:
                         piece = board[i + m]
                         if piece == -1 or piece in pieces: continue
                         # the king has to stay within his palace
-                        # FIXME:
-                        # this doesn't check for kings facing each other
                         if (i + m in [26, 27, 28, 37, 38, 39, 48, 49, 50] and player) or (i + m in [103, 104, 105, 114, 115, 116, 125, 126, 127] and not player):
                             pseudo_legal_moves.append((i, i + m))
         return pseudo_legal_moves
 
+    def indexNotation(self, index):
+        index = abs(index - 14 * 11) - 23
+        row, col = index // 11, index % 11
+        return str(chr(row + 65) + str(col))
+
 Game = Chess()
 Game.print_board()
+Game.Player = not Game.Player
 
-print("\n", Game.pseudo_legal(Game.board, Game.Player))
+print("\n\n", list(map(lambda x: Game.indexNotation(x[0]) + Game.indexNotation(x[1]),Game.pseudo_legal(Game.board, Game.Player))))
+print(Game.pseudo_legal(Game.board, Game.Player))
+
 print("Moves:", len(Game.pseudo_legal(Game.board, Game.Player)))
+print(Game.legal_position(Game.board, Game.Player))
 
-print(Game.notationSq(input()))
-print(Game.Pieces[Game.board[Game.notationSq(input())]])
-print(Game.Pieces[Game.board[int(input())]])
-
-# print(Game.legal_position(Game.board, Game.Player))
+# print(Game.notationSq(input()))
+# print(Game.Pieces[Game.board[Game.notationSq(input())]])
+# print(Game.Pieces[Game.board[int(input())]])
