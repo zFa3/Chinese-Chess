@@ -5,6 +5,7 @@ Chinese Chess, made in pure python by me (zFa3)
 
 # How to play
 You can run this in any python IDE, or with the default Python IDLE
+- note: no extra libraries are needed to run this program
 
 The player on top (Player 1) goes first
 you can play a move by typing in your move in the format described:
