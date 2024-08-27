@@ -15,20 +15,20 @@ Example: D5E5
 This project was inspired by my first chess game/engine, which
 took insiration from sunfish
 
-# Pieces
-車, 馬, 砲, 卒, 士, 象, 將 --- Player 1
-俥, 傌, 炮, 兵, 仕, 相, 帥 --- Player 2
-_Both sides have the same types of pieces_
-_Just with different chinese characters_
-
-(you can change the caracters within the code by altering lines 44 -> 58)
-
-First piece behaves identically to a rook
-Second is a knight
-Third is a cannon (moves like a rook but can only take when jumping over a piece)
-Fourth is a Pawn, can only move side to side when it crosses the river
-Fifth piece moves only diagonally within the palace
-Sixth is the Elephant (cannot cross the river)
-Lastly the king, which moves in the cardinal directions and cannot leave the palace
-
-For full set of rules visit [this](https://www.youtube.com/watch?v=vklqOLf6mtU&t=128s) link
+# Pieces  
+車, 馬, 砲, 卒, 士, 象, 將 --- Player 1  
+俥, 傌, 炮, 兵, 仕, 相, 帥 --- Player 2  
+_Both sides have the same types of pieces_  
+_Just with different chinese characters_   
+  
+(you can change the caracters within the code by altering lines 44 -> 58)  
+  
+First piece behaves identically to a rook  
+Second is a knight  
+Third is a cannon (moves like a rook but can only take when jumping over a piece)  
+Fourth is a Pawn, can only move side to side when it crosses the river  
+Fifth piece moves only diagonally within the palace  
+Sixth is the Elephant (cannot cross the river)  
+Lastly the king, which moves in the cardinal directions and cannot leave the palace  
+  
+For full set of rules visit [this](https://www.youtube.com/watch?v=vklqOLf6mtU&t=128s) link  
