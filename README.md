@@ -27,5 +27,4 @@ _Just with different chinese characters_
 
 # Rules
 
-You can visit [this](https://www.youtube.com/watch?v=vklqOLf6mtU&t=128s) link  
-for a comprehensive list of the rules
+You can visit [this](https://www.youtube.com/watch?v=vklqOLf6mtU&t=128s) link for a comprehensive list of the rules
